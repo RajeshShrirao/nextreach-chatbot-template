@@ -8,7 +8,7 @@ PROVIDERS = {
     "cerebras": {
         "base_url": "https://api.cerebras.ai/v1",
         "api_key": os.getenv("CEREBRAS_API_KEY"),
-        "model": "llama-4-scout-17b-16e-instruct"
+        "model": "llama3.1-8b"
     },
     "openai": {
         "base_url": "https://api.openai.com/v1",

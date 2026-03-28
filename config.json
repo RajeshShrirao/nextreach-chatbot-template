@@ -1,0 +1,14 @@
+{
+  "business_name": "Demo Business",
+  "greeting": "Hi! Welcome! How can I help you today?",
+  "hours": "Mon–Sat 9AM–6PM",
+  "location": "Your City",
+  "services": ["service 1", "service 2", "service 3"],
+  "faq": {
+    "pricing": "Contact us for a quote",
+    "appointment": "Call us or WhatsApp to book",
+    "location": "We're located at [address]"
+  },
+  "escalation": "Let me connect you with our team for that.",
+  "provider": "cerebras"
+}

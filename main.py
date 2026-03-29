@@ -8,28 +8,47 @@ with open("config.json") as f:
     BUSINESS = json.load(f)
 
 def build_system_prompt(biz: dict) -> str:
-    faq_text = "\n".join(f"- {k}: {v}" for k, v in biz.get("faq", {}).items())
-    services = ", ".join(biz.get("services", []))
+    # Handle FAQ in both formats: dict or list of {q, a} objects
+    faq_raw = biz.get("faq", {})
+    if isinstance(faq_raw, dict):
+        faq_text = "\n".join(f"- {k}: {v}" for k, v in faq_raw.items())
+    elif isinstance(faq_raw, list):
+        faq_text = "\n".join(f"- Q: {item['q']}\n  A: {item['a']}" for item in faq_raw if 'q' in item and 'a' in item)
+    else:
+        faq_text = "No FAQ data available."
     
-    return f"""You are a friendly assistant for {biz['business_name']}.
+    # Handle services in both formats: list of strings or list of {name, price, duration} objects
+    services_raw = biz.get("services", [])
+    if services_raw and isinstance(services_raw[0], dict):
+        services = "\n".join(f"- {s.get('name', 'Unknown')}: {s.get('price', 'N/A')}" for s in services_raw)
+    else:
+        services = ", ".join(str(s) for s in services_raw)
+    
+    business_type = biz.get('business_type', 'business')
+    
+    return f"""You are a friendly AI receptionist for {biz['business_name']}, a {business_type}.
 
 About us:
 - Location: {biz.get('location', 'N/A')}
 - Hours: {biz.get('hours', 'N/A')}
-- Services: {services}
+{f"- Phone: {biz.get('phone', 'N/A')}" if biz.get('phone') else ''}
 
-Common questions and answers:
+Services and Pricing:
+{services}
+
+Common Questions:
 {faq_text}
 
 How to behave:
-- Talk like a real person who works at the clinic. Warm, casual, helpful.
+- Talk like a real person who works here. Warm, casual, helpful.
 - Use the info above to answer. Don't make stuff up.
 - If you genuinely don't know something, say: "{biz.get('escalation', 'Let me connect you with our team.')}"
 - Keep it short — 2-3 sentences max unless they ask for details.
-- If someone sounds worried or in pain, be extra reassuring and offer to book them in right away.
 - Mention specific prices/services from the info above when relevant — people love concrete answers.
 - Don't be robotic. No "As an AI" or "I'm a virtual assistant."
-- One emoji max per message, and only if it fits naturally."""
+- One emoji max per message, and only if it fits naturally.
+- If someone wants to book, collect: their name, phone, pet name/breed, desired service, and preferred time.
+- Always be honest about what you don't know — never guess prices or policies."""
 
 SYSTEM_PROMPT = build_system_prompt(BUSINESS)
 GREETING = BUSINESS.get("greeting", f"Hi! I'm the {BUSINESS['business_name']} assistant. How can I help?")
